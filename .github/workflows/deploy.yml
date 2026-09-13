@@ -1,3 +1,4 @@
+
 name: Build and Deploy to AKS
 
 on:
@@ -14,11 +15,13 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+    # Updated to v4
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
+    # Updated to v2
     - name: Azure Login
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -28,15 +31,15 @@ jobs:
 
     - name: Build and Push Microservices
       run: |
-        # A loop to efficiently build and push all 5 container images
         for app in health auth catalog ordering payment; do
           echo "Building and pushing $app..."
           docker build --build-arg APP_NAME=$app -t ${{ env.ACR_NAME }}.azurecr.io/$app:latest ./src
           docker push ${{ env.ACR_NAME }}.azurecr.io/$app:latest
         done
 
+    # Updated to v4
     - name: Set AKS Context
-      uses: azure/aks-set-context@v3
+      uses: azure/aks-set-context@v4
       with:
         resource-group: ${{ env.RESOURCE_GROUP }}
         cluster-name: ${{ env.AKS_CLUSTER_NAME }}
@@ -45,5 +48,4 @@ jobs:
       run: |
         kubectl apply -f apps.yaml
         
-        # Restarts the pods to ensure they pull the freshly built 'latest' images
         kubectl rollout restart deployment health-deployment auth-deployment catalog-deployment ordering-deployment payment-deployment
