@@ -36,13 +36,19 @@ jobs:
           docker build --build-arg APP_NAME=$app -t ${{ env.ACR_NAME }}.azurecr.io/$app:latest ./src
           docker push ${{ env.ACR_NAME }}.azurecr.io/$app:latest
         done
-
-    # Updated to v4
+    # 1. ADD THIS NEW STEP
+    - name: Set up kubelogin
+      uses: azure/use-kubelogin@v1
+      with:
+        kubelogin-version: 'v0.1.1'
+        kubelogin-release-tag: 'v0.1.1'
     - name: Set AKS Context
       uses: azure/aks-set-context@v4
       with:
         resource-group: ${{ env.RESOURCE_GROUP }}
         cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+        admin: 'false'
+        use-kubelogin: 'true'
 
     - name: Deploy Manifest to AKS
       run: |
