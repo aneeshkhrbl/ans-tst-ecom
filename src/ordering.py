@@ -9,7 +9,8 @@ class OrderRequest(BaseModel):
     quantity: int
     customer_email: str
 
-@app.post("/ordering/checkout")
+# Change this from "/ordering/checkout" to "/checkout"
+@app.post("/checkout")
 def place_order(order: OrderRequest):
     # In a real app, this would deduct stock from the catalog and bill the customer
     order_id = str(uuid.uuid4())

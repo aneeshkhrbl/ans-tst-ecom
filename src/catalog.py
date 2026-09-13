@@ -10,7 +10,8 @@ PRODUCTS = [
     {"id": 3, "name": "Heavyweight Hoodie", "category": "Outerwear", "description": "Fleece-lined winter hoodie.", "price": 55.00, "stock": 40}
 ]
 
-@app.get("/catalog", response_class=HTMLResponse)
+# Changed from "/catalog" to "/"
+@app.get("/", response_class=HTMLResponse)
 def get_catalog():
     # Dynamically generate HTML for each product card
     items_html = ""
@@ -96,7 +97,8 @@ def get_catalog():
     """
     return html_content
 
-@app.get("/catalog/{item_id}")
+# Changed from "/catalog/{item_id}" to "/{item_id}"
+@app.get("/{item_id}")
 def get_item(item_id: int):
     for item in PRODUCTS:
         if item["id"] == item_id:
