@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: health
-        image: <your-acr-name>.azurecr.io/health:latest
+        image: acrecommerce7eeaed12.azurecr.io/health:latest
         ports:
         - containerPort: 80
 ---
@@ -52,7 +52,7 @@ spec:
     spec:
       containers:
       - name: auth
-        image: acrecommercea2975f8a.azurecr.io/auth:latest
+        image: acrecommerce7eeaed12.azurecr.io/auth:latest
         ports:
         - containerPort: 80
         envFrom:
@@ -89,7 +89,7 @@ spec:
     spec:
       containers:
       - name: catalog
-        image: acrecommercea2975f8a.azurecr.io/catalog:latest
+        image: acrecommerce7eeaed12.azurecr.io/catalog:latest
         ports:
         - containerPort: 80
         envFrom:
@@ -126,7 +126,7 @@ spec:
     spec:
       containers:
       - name: ordering
-        image: acrecommercea2975f8a.azurecr.io/ordering:latest
+        image: acrecommerce7eeaed12.azurecr.io/ordering:latest
         ports:
         - containerPort: 80
         envFrom:
@@ -163,7 +163,7 @@ spec:
     spec:
       containers:
       - name: payment
-        image: acrecommercea2975f8a.azurecr.io/payment:latest
+        image: acrecommerce7eeaed12.azurecr.io/payment:latest
         ports:
         - containerPort: 80
         envFrom:
