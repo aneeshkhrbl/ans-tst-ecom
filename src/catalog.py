@@ -1,22 +1,21 @@
-import os
-import pymssql
 from fastapi import FastAPI
 
 app = FastAPI()
 
-def get_db_connection():
-    return pymssql.connect(
-        server=os.getenv("DB_SERVER"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME")
-    )
+# Mock database of clothing products
+PRODUCTS = [
+    {"id": 1, "name": "Classic Workout T-Shirt", "category": "Activewear", "description": "Medium size, 40-inch chest, 26-inch max length.", "price": 25.00, "stock": 150},
+    {"id": 2, "name": "Performance Joggers", "category": "Activewear", "description": "Breathable running joggers with zip pockets.", "price": 40.00, "stock": 85},
+    {"id": 3, "name": "Heavyweight Hoodie", "category": "Outerwear", "description": "Fleece-lined winter hoodie.", "price": 55.00, "stock": 40}
+]
 
-@app.get("/health")
-def health():
-    try:
-        conn = get_db_connection()
-        conn.close()
-        return {"service": "Catalog", "status": "Running", "database": "Connected"}
-    except Exception as e:
-        return {"service": "Catalog", "status": "Running", "database": f"Failed to connect: {str(e)}"}
+@app.get("/catalog")
+def get_catalog():
+    return {"items": PRODUCTS, "total_count": len(PRODUCTS)}
+
+@app.get("/catalog/{item_id}")
+def get_item(item_id: int):
+    for item in PRODUCTS:
+        if item["id"] == item_id:
+            return item
+    return {"error": "Item not found"}

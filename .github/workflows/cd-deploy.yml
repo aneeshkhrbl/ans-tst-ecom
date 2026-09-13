@@ -1,0 +1,38 @@
+name: CD - Deploy to AKS
+
+on:
+  workflow_run:
+    workflows: ["CI - Build and Push"]
+    types:
+      - completed
+
+env:
+  AKS_CLUSTER_NAME: 'aks-ecommerce-public'
+  RESOURCE_GROUP: 'rg-ecommerce-prod'
+
+jobs:
+  deploy:
+    # Only run if the build pipeline was completely successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set AKS Context
+      uses: azure/aks-set-context@v4
+      with:
+        resource-group: ${{ env.RESOURCE_GROUP }}
+        cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+        admin: 'true'
+
+    - name: Deploy Manifest to AKS
+      run: |
+        kubectl apply -f apps.yaml
+        kubectl rollout restart deployment health-deployment auth-deployment catalog-deployment ordering-deployment payment-deployment
