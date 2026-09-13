@@ -1,0 +1,49 @@
+name: Build and Deploy to AKS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  ACR_NAME: 'acrecommerce7eeaed12'
+  AKS_CLUSTER_NAME: 'aks-ecommerce-public'
+  RESOURCE_GROUP: 'rg-ecommerce-prod'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Login to ACR
+      run: |
+        az acr login --name ${{ env.ACR_NAME }}
+
+    - name: Build and Push Microservices
+      run: |
+        # A loop to efficiently build and push all 5 container images
+        for app in health auth catalog ordering payment; do
+          echo "Building and pushing $app..."
+          docker build --build-arg APP_NAME=$app -t ${{ env.ACR_NAME }}.azurecr.io/$app:latest ./src
+          docker push ${{ env.ACR_NAME }}.azurecr.io/$app:latest
+        done
+
+    - name: Set AKS Context
+      uses: azure/aks-set-context@v3
+      with:
+        resource-group: ${{ env.RESOURCE_GROUP }}
+        cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+
+    - name: Deploy Manifest to AKS
+      run: |
+        kubectl apply -f apps.yaml
+        
+        # Restarts the pods to ensure they pull the freshly built 'latest' images
+        kubectl rollout restart deployment health-deployment auth-deployment catalog-deployment ordering-deployment payment-deployment
